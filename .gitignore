@@ -1,0 +1,12 @@
+build/
+**/build/
+plugins/*/installer/
+*.o
+*.a
+.DS_Store
+node_modules/
+.mcp-servers/*/node_modules/
+
+# Claude Code local state
+.claude/projects/
+.claude/settings.local.json

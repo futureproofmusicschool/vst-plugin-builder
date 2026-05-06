@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>{{DISPLAY_NAME}} {{VERSION}}</title>
+    <welcome language="en" mime-type="text/html"><![CDATA[
+        <html><body style="font-family: -apple-system, Helvetica Neue, sans-serif;">
+        <h1>{{DISPLAY_NAME}} {{VERSION}}</h1>
+        <p>This installer will place the <strong>{{DISPLAY_NAME}}</strong> audio plugin on your system.</p>
+        <p>The following formats will be installed:</p>
+        <ul>
+            <li><strong>VST3</strong> - for Ableton Live, FL Studio, Bitwig, and other VST3 hosts</li>
+            <li><strong>Audio Unit (AU)</strong> - for Logic Pro, GarageBand, and other AU hosts</li>
+        </ul>
+        <p style="color: #666; font-size: 0.9em;">Built by {{COMPANY_NAME}}</p>
+        </body></html>
+    ]]></welcome>
+    <options customize="allow" require-scripts="false" rootVolumeOnly="true" />
+    <choices-outline>
+        <line choice="vst3" />
+        <line choice="au" />
+    </choices-outline>
+    <choice id="vst3" title="VST3 Plugin" description="Installs {{DISPLAY_NAME}}.vst3 to /Library/Audio/Plug-Ins/VST3/">
+        <pkg-ref id="{{BUNDLE_ID}}.vst3" />
+    </choice>
+    <choice id="au" title="Audio Unit Plugin" description="Installs {{DISPLAY_NAME}}.component to /Library/Audio/Plug-Ins/Components/">
+        <pkg-ref id="{{BUNDLE_ID}}.au" />
+    </choice>
+    <pkg-ref id="{{BUNDLE_ID}}.vst3" version="{{VERSION}}">vst3.pkg</pkg-ref>
+    <pkg-ref id="{{BUNDLE_ID}}.au" version="{{VERSION}}">au.pkg</pkg-ref>
+</installer-gui-script>

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf build)",
+      "Bash(cmake -B build -DCMAKE_BUILD_TYPE=Release)",
+      "Bash(cmake --build build --config Release)",
+      "Read(//Library/Fonts/**)",
+      "Read(//System/Library/Fonts/**)",
+      "Bash(gh run:*)",
+      "Bash(gh release:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(security find-identity:*)",
+      "Bash(xcrun notarytool:*)",
+      "Bash(xcrun stapler:*)",
+      "mcp__juce-docs__search-juce-classes",
+      "mcp__juce-docs__get-juce-class-docs"
+    ]
+  }
+}

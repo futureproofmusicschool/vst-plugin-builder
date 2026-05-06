@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "juce-docs": {
+      "command": "node",
+      "args": [".mcp-servers/juce-docs/juce-docs-mcp-server/dist/index.js"]
+    }
+  }
+}

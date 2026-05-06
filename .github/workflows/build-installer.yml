@@ -1,0 +1,286 @@
+name: Build Plugin Installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin_name:
+        description: 'Plugin directory name (e.g. ReverbATron, underwater)'
+        required: true
+        type: string
+  push:
+    tags: ['v*']
+
+env:
+  # For tag pushes, extract plugin name from tag (e.g. v1.0.0-ReverbATron)
+  # For manual runs, use the input
+  PLUGIN_NAME: ${{ github.event.inputs.plugin_name || '' }}
+
+jobs:
+  # Resolve plugin name from tag if needed
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      plugin_name: ${{ steps.resolve.outputs.plugin_name }}
+      version: ${{ steps.resolve.outputs.version }}
+      display_name: ${{ steps.resolve.outputs.display_name }}
+      company_name: ${{ steps.resolve.outputs.company_name }}
+      bundle_id: ${{ steps.resolve.outputs.bundle_id }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve plugin name and metadata
+        id: resolve
+        shell: bash
+        run: |
+          # Get plugin name from input or tag
+          if [ -n "${{ github.event.inputs.plugin_name }}" ]; then
+            PLUGIN="${{ github.event.inputs.plugin_name }}"
+          else
+            # Extract from tag: v1.0.0-PluginName -> PluginName
+            TAG="${GITHUB_REF#refs/tags/}"
+            PLUGIN="${TAG#*-}"
+            if [ "$PLUGIN" = "$TAG" ]; then
+              echo "::error::Tag must be in format v1.0.0-PluginName"
+              exit 1
+            fi
+          fi
+
+          # Verify plugin directory exists
+          if [ ! -d "plugins/$PLUGIN" ]; then
+            echo "::error::Plugin directory plugins/$PLUGIN not found"
+            exit 1
+          fi
+
+          # Extract metadata from CMakeLists.txt
+          CMAKE="plugins/$PLUGIN/CMakeLists.txt"
+          VERSION=$(grep -oP 'VERSION\s+\K[0-9]+\.[0-9]+\.[0-9]+' "$CMAKE" | head -1)
+          DISPLAY_NAME=$(grep -oP 'PRODUCT_NAME\s+"\K[^"]+' "$CMAKE" || echo "$PLUGIN")
+          COMPANY_NAME=$(grep -oP 'COMPANY_NAME\s+"\K[^"]+' "$CMAKE" || echo "MyCompany")
+          BUNDLE_ID=$(grep -oP 'BUNDLE_ID\s+"\K[^"]+' "$CMAKE" || echo "com.mycompany.${PLUGIN,,}")
+
+          echo "plugin_name=$PLUGIN" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION:-1.0.0}" >> "$GITHUB_OUTPUT"
+          echo "display_name=${DISPLAY_NAME}" >> "$GITHUB_OUTPUT"
+          echo "company_name=${COMPANY_NAME}" >> "$GITHUB_OUTPUT"
+          echo "bundle_id=${BUNDLE_ID}" >> "$GITHUB_OUTPUT"
+
+          echo "Building $DISPLAY_NAME v$VERSION"
+
+  build-mac:
+    needs: resolve
+    runs-on: macos-latest
+    env:
+      PLUGIN: ${{ needs.resolve.outputs.plugin_name }}
+      VERSION: ${{ needs.resolve.outputs.version }}
+      DISPLAY_NAME: ${{ needs.resolve.outputs.display_name }}
+      COMPANY_NAME: ${{ needs.resolve.outputs.company_name }}
+      BUNDLE_ID: ${{ needs.resolve.outputs.bundle_id }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Build plugin
+        run: |
+          cd plugins/$PLUGIN
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
+      - name: Run unit tests (if present)
+        run: |
+          if [ -f "plugins/$PLUGIN/tests/CMakeLists.txt" ]; then
+            cd "plugins/$PLUGIN/build"
+            ctest --output-on-failure
+          else
+            echo "No plugins/$PLUGIN/tests/CMakeLists.txt — skipping unit tests"
+          fi
+
+      - name: Verify artifacts
+        run: |
+          ls -la "plugins/$PLUGIN/build/${PLUGIN}_artefacts/Release/VST3/${DISPLAY_NAME}.vst3"
+          ls -la "plugins/$PLUGIN/build/${PLUGIN}_artefacts/Release/AU/${DISPLAY_NAME}.component"
+
+      - name: Install pluginval
+        run: brew install pluginval
+
+      - name: Run pluginval (strictness 5)
+        run: |
+          pluginval --strictness-level 5 --validate-in-process \
+            --validate "plugins/$PLUGIN/build/${PLUGIN}_artefacts/Release/VST3/${DISPLAY_NAME}.vst3"
+
+      - name: Create installer
+        run: |
+          ARTIFACTS="plugins/$PLUGIN/build/${PLUGIN}_artefacts/Release"
+          INSTALLER_DIR="plugins/$PLUGIN/installer"
+          mkdir -p "$INSTALLER_DIR/vst3-payload" "$INSTALLER_DIR/au-payload"
+
+          # Copy plugin bundles to payload directories
+          # JUCE names artifacts using PRODUCT_NAME, not the CMake target name
+          cp -R "$ARTIFACTS/VST3/${DISPLAY_NAME}.vst3" "$INSTALLER_DIR/vst3-payload/"
+          cp -R "$ARTIFACTS/AU/${DISPLAY_NAME}.component" "$INSTALLER_DIR/au-payload/"
+
+          # Build component packages
+          pkgbuild --root "$INSTALLER_DIR/vst3-payload" \
+                   --install-location "/Library/Audio/Plug-Ins/VST3" \
+                   --identifier "${BUNDLE_ID}.vst3" \
+                   --version "$VERSION" \
+                   "$INSTALLER_DIR/vst3.pkg"
+
+          pkgbuild --root "$INSTALLER_DIR/au-payload" \
+                   --install-location "/Library/Audio/Plug-Ins/Components" \
+                   --identifier "${BUNDLE_ID}.au" \
+                   --version "$VERSION" \
+                   "$INSTALLER_DIR/au.pkg"
+
+          # Fill distribution.xml template
+          sed -e "s/{{DISPLAY_NAME}}/$DISPLAY_NAME/g" \
+              -e "s/{{VERSION}}/$VERSION/g" \
+              -e "s/{{COMPANY_NAME}}/$COMPANY_NAME/g" \
+              -e "s/{{BUNDLE_ID}}/$BUNDLE_ID/g" \
+              templates/distribution.xml.template > "$INSTALLER_DIR/distribution.xml"
+
+          # Build final installer
+          productbuild --distribution "$INSTALLER_DIR/distribution.xml" \
+                       --package-path "$INSTALLER_DIR/" \
+                       --version "$VERSION" \
+                       "$INSTALLER_DIR/${PLUGIN}-Installer-Mac.pkg"
+
+          # Clean up intermediate files
+          rm -rf "$INSTALLER_DIR/vst3-payload" "$INSTALLER_DIR/au-payload"
+          rm -f "$INSTALLER_DIR/vst3.pkg" "$INSTALLER_DIR/au.pkg" "$INSTALLER_DIR/distribution.xml"
+
+          echo "Mac installer created:"
+          ls -lh "$INSTALLER_DIR/${PLUGIN}-Installer-Mac.pkg"
+
+      - name: Upload Mac installer
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ env.PLUGIN }}-Installer-Mac
+          path: plugins/${{ env.PLUGIN }}/installer/${{ env.PLUGIN }}-Installer-Mac.pkg
+
+  build-windows:
+    needs: resolve
+    runs-on: windows-latest
+    env:
+      PLUGIN: ${{ needs.resolve.outputs.plugin_name }}
+      VERSION: ${{ needs.resolve.outputs.version }}
+      DISPLAY_NAME: ${{ needs.resolve.outputs.display_name }}
+      COMPANY_NAME: ${{ needs.resolve.outputs.company_name }}
+      BUNDLE_ID: ${{ needs.resolve.outputs.bundle_id }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Build plugin
+        run: |
+          cd plugins/$env:PLUGIN
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
+      - name: Run unit tests (if present)
+        shell: bash
+        run: |
+          if [ -f "plugins/$PLUGIN/tests/CMakeLists.txt" ]; then
+            cd "plugins/$PLUGIN/build"
+            ctest --output-on-failure -C Release
+          else
+            echo "No plugins/$PLUGIN/tests/CMakeLists.txt — skipping unit tests"
+          fi
+
+      - name: Verify artifacts
+        run: |
+          Get-ChildItem "plugins/$env:PLUGIN/build/${env:PLUGIN}_artefacts/Release/VST3" -Recurse
+
+      - name: Install pluginval
+        shell: powershell
+        run: |
+          $url = "https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_Windows.zip"
+          Invoke-WebRequest -Uri $url -OutFile pluginval.zip
+          Expand-Archive -Path pluginval.zip -DestinationPath pluginval -Force
+
+      - name: Run pluginval (strictness 5)
+        shell: powershell
+        run: |
+          $vst3 = "plugins/$env:PLUGIN/build/${env:PLUGIN}_artefacts/Release/VST3/${env:DISPLAY_NAME}.vst3"
+          .\pluginval\pluginval.exe --strictness-level 5 --validate-in-process --validate $vst3
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Create installer
+        run: |
+          $installerDir = "plugins/$env:PLUGIN/installer"
+          New-Item -ItemType Directory -Force -Path $installerDir
+
+          # Copy VST3 bundle to installer staging area
+          # JUCE names artifacts using PRODUCT_NAME, not the CMake target name
+          $vst3Source = "plugins/$env:PLUGIN/build/${env:PLUGIN}_artefacts/Release/VST3/${env:DISPLAY_NAME}.vst3"
+          Copy-Item -Recurse -Force $vst3Source "$installerDir/"
+
+          # Fill Inno Setup template
+          $template = Get-Content "templates/installer.iss.template" -Raw
+          $script = $template `
+            -replace '\{\{PLUGIN_NAME\}\}', $env:DISPLAY_NAME `
+            -replace '\{\{OUTPUT_NAME\}\}', $env:PLUGIN `
+            -replace '\{\{DISPLAY_NAME\}\}', $env:DISPLAY_NAME `
+            -replace '\{\{VERSION\}\}', $env:VERSION `
+            -replace '\{\{COMPANY_NAME\}\}', $env:COMPANY_NAME
+          Set-Content -Path "$installerDir/installer.iss" -Value $script
+
+          # Build installer
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "$installerDir/installer.iss"
+
+          # Clean up staging files
+          Remove-Item -Recurse -Force "$installerDir/${env:DISPLAY_NAME}.vst3"
+          Remove-Item -Force "$installerDir/installer.iss"
+
+          Write-Host "Windows installer created:"
+          Get-ChildItem "$installerDir/${env:PLUGIN}-Installer-Windows.exe"
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ env.PLUGIN }}-Installer-Windows
+          path: plugins/${{ env.PLUGIN }}/installer/${{ env.PLUGIN }}-Installer-Windows.exe
+
+  # Create GitHub Release when triggered by a tag push
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [resolve, build-mac, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Mac installer
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ needs.resolve.outputs.plugin_name }}-Installer-Mac
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ needs.resolve.outputs.plugin_name }}-Installer-Windows
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ needs.resolve.outputs.display_name }} ${{ needs.resolve.outputs.version }}
+          body: |
+            ## ${{ needs.resolve.outputs.display_name }} ${{ needs.resolve.outputs.version }}
+
+            ### Installation
+            - **Mac**: Download the `.pkg` file and double-click to install. Choose VST3 and/or AU formats.
+            - **Windows**: Download the `.exe` file and run the installer. VST3 plugin will be installed automatically.
+
+            ### Plugin Locations After Install
+            | Platform | Format | Location |
+            |----------|--------|----------|
+            | Mac | VST3 | `/Library/Audio/Plug-Ins/VST3/` |
+            | Mac | AU | `/Library/Audio/Plug-Ins/Components/` |
+            | Windows | VST3 | `C:\Program Files\Common Files\VST3\` |
+
+            After installing, rescan plugins in your DAW.
+          files: |
+            ${{ needs.resolve.outputs.plugin_name }}-Installer-Mac.pkg
+            ${{ needs.resolve.outputs.plugin_name }}-Installer-Windows.exe

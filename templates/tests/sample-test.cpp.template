@@ -1,0 +1,50 @@
+// Sample DSP test for [PluginName].
+//
+// Pattern:
+//   1. Extract DSP algorithms into standalone classes under Source/dsp/ that
+//      don't depend on juce::AudioProcessor. Example: Source/dsp/MyFilter.h
+//   2. Use them from PluginProcessor::processBlock as usual.
+//   3. Test them here by instantiating directly and feeding synthetic buffers.
+//
+// Run with:
+//   cd plugins/[PluginName] && cmake -B build && cmake --build build && (cd build && ctest --output-on-failure)
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
+#include <vector>
+
+// Example: include a DSP class once you've extracted one.
+// #include "dsp/MyFilter.h"
+
+TEST_CASE("Catch2 is wired up correctly", "[sanity]")
+{
+    REQUIRE(2 + 2 == 4);
+}
+
+// Example DSP test (uncomment and adapt once you have a DSP class to test):
+//
+// TEST_CASE("MyFilter passes silence through as silence", "[dsp]")
+// {
+//     MyFilter filter;
+//     filter.prepare(44100.0, 512);
+//
+//     std::vector<float> buffer(512, 0.0f);
+//     filter.process(buffer.data(), buffer.size());
+//
+//     for (auto sample : buffer)
+//         REQUIRE(sample == Catch::Approx(0.0f).margin(1e-6));
+// }
+//
+// TEST_CASE("MyFilter is stable under impulse", "[dsp]")
+// {
+//     MyFilter filter;
+//     filter.prepare(44100.0, 1024);
+//
+//     std::vector<float> buffer(1024, 0.0f);
+//     buffer[0] = 1.0f;  // unit impulse
+//     filter.process(buffer.data(), buffer.size());
+//
+//     // Output should decay — no sample should exceed reasonable bounds
+//     for (auto sample : buffer)
+//         REQUIRE(std::abs(sample) < 10.0f);
+// }

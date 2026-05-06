@@ -1,0 +1,142 @@
+# Known issues — recurring build, load, and runtime failures with diagnoses.
+#
+# How this file is used:
+#   - /deploy and /debug consult this file BEFORE attempting fresh diagnosis.
+#   - On a build/load failure, look up the symptom (compiler output, DAW behavior,
+#     audio behavior). If a match exists, apply the fix.
+#   - If a new failure mode is encountered, append a new entry here so the next
+#     run picks it up.
+#
+# Schema per entry:
+#   id:         short-kebab-case identifier
+#   symptom:    one-line description of what the user sees
+#   detect:     substring(s) to grep in build logs or error output to identify it
+#   fix:        what to do
+#   frequency:  rough count of how often we've seen it (increment on hit)
+#   last_seen:  ISO date
+
+issues:
+  - id: juce-submodule-not-initialized
+    symptom: CMake can't find JUCE — "add_subdirectory given source ... which is not an existing directory"
+    detect:
+      - "is not an existing directory"
+      - "add_subdirectory.*JUCE"
+    fix: |
+      Run `git submodule update --init --recursive` from the repo root.
+      The JUCE/ submodule is referenced by every plugin's CMakeLists.txt.
+    frequency: 0
+    last_seen: null
+
+  - id: au-signing-no-xcode
+    symptom: AU plugin builds but doesn't load in Logic Pro; or build fails with "code signing" error
+    detect:
+      - "code signing"
+      - "could not be code signed"
+      - "auval failed"
+    fix: |
+      AU plugins require full Xcode for code signing — Command Line Tools alone
+      isn't enough. Verify `xcode-select -p` points to `/Applications/Xcode.app/...`.
+      Switch with: `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
+      Then clean and rebuild: `rm -rf build && cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release`
+    frequency: 0
+    last_seen: null
+
+  - id: plugin-code-collision
+    symptom: Plugin builds but doesn't appear in DAW, or appears with wrong name
+    detect:
+      - "PLUGIN_CODE"
+      - "duplicate plugin"
+    fix: |
+      The 4-character PLUGIN_CODE in CMakeLists.txt must be unique across all
+      installed plugins. Two plugins with the same code will collide in DAW
+      databases. Pick a meaningful 4-char code (e.g. "Rvrb", "Dlay", "Cmps").
+    frequency: 0
+    last_seen: null
+
+  - id: juce-web-browser-linker
+    symptom: Linker errors mentioning WebView, WebKit, or curl symbols
+    detect:
+      - "WebKit"
+      - "_curl_"
+      - "WebView"
+    fix: |
+      Add to CMakeLists.txt under `target_compile_definitions`:
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+      These default to 1 and pull in unnecessary frameworks on macOS.
+    frequency: 0
+    last_seen: null
+
+  - id: clap-format-not-recognized
+    symptom: CMake error like "FORMATS: unknown format 'CLAP'" or "CLAP is not a valid plugin format"
+    detect:
+      - "unknown format.*CLAP"
+      - "not a valid plugin format"
+    fix: |
+      Native CLAP support requires JUCE 8. If on an older JUCE version, either
+      update the JUCE submodule or drop CLAP from the FORMATS list:
+        FORMATS  AU VST3 Standalone
+      JUCE 8 was released in 2024. Update with:
+        cd JUCE && git checkout master && git pull && cd ..
+    frequency: 0
+    last_seen: null
+
+  - id: state-restore-parameter-id-mismatch
+    symptom: Saved DAW project loses plugin parameter values on reload, or values are wrong
+    detect:
+      - "setStateInformation"
+      - "ValueTree restore"
+    fix: |
+      APVTS state is keyed by parameter ID. If a parameter ID was renamed
+      between sessions, old saves won't restore. Check parameter IDs in
+      `createParameterLayout()` against the saved state's XML. Either revert
+      the rename, or accept the breakage as part of a major version bump.
+    frequency: 0
+    last_seen: null
+
+  - id: pluginval-strictness-5-fail
+    symptom: pluginval at strictness 5 reports failures (timing, state, or parameter issues)
+    detect:
+      - "pluginval"
+      - "FAILED"
+    fix: |
+      Common strictness-5 failures:
+        - "Parameter X did not change when set" → parameter listener not wired
+        - "State did not restore" → check getStateInformation/setStateInformation
+        - "Editor not closed properly" → editor destructor leaking
+        - "Audio buffer not zeroed" → processBlock leaving uninitialized samples
+      Run with `--verbose` to get specifics. Strictness 5 is strict on purpose;
+      shipping at strictness 5 is the right bar for paid plugins.
+    frequency: 0
+    last_seen: null
+
+  - id: plugin-not-rescanned-by-daw
+    symptom: Plugin built and installed, but DAW doesn't show it
+    detect:
+      - "DAW does not see"
+      - "not in plugin list"
+    fix: |
+      DAWs cache plugin lists. Trigger a rescan:
+        - Logic Pro: Preferences > Plug-In Manager > Reset & Rescan Selection
+        - Ableton Live: Preferences > Plug-Ins > toggle "Use VST3 Plug-In System Folders"
+        - FL Studio: Options > Manage Plugins > Find more plugins
+        - Reaper: Preferences > Plug-ins > VST > Re-scan
+      Confirm install path: `ls ~/Library/Audio/Plug-Ins/{VST3,Components}/ | grep <PluginName>`
+    frequency: 0
+    last_seen: null
+
+  - id: alloc-in-process-block-clicks
+    symptom: Audible clicks, pops, or dropouts during playback — especially under load
+    detect:
+      - "audio thread"
+      - "real-time"
+    fix: |
+      Something is allocating, locking, or doing I/O in `processBlock`. Common offenders:
+        - `std::vector::resize` or `push_back` on a member
+        - `juce::String` construction (allocates)
+        - `juce::Logger` or `DBG()` calls
+        - `std::lock_guard` on any mutex
+      Move all allocation to `prepareToPlay`. Replace logging with assertions
+      that fire in debug builds only.
+    frequency: 0
+    last_seen: null
