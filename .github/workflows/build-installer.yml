@@ -10,6 +10,9 @@ on:
   push:
     tags: ['v*']
 
+permissions:
+  contents: read
+
 env:
   # For tag pushes, extract plugin name from tag (e.g. v1.0.0-ReverbATron)
   # For manual runs, use the input
@@ -26,7 +29,7 @@ jobs:
       company_name: ${{ steps.resolve.outputs.company_name }}
       bundle_id: ${{ steps.resolve.outputs.bundle_id }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
 
       - name: Resolve plugin name and metadata
         id: resolve
@@ -76,7 +79,7 @@ jobs:
       COMPANY_NAME: ${{ needs.resolve.outputs.company_name }}
       BUNDLE_ID: ${{ needs.resolve.outputs.bundle_id }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
         with:
           submodules: recursive
 
@@ -153,7 +156,7 @@ jobs:
           ls -lh "$INSTALLER_DIR/${PLUGIN}-Installer-Mac.pkg"
 
       - name: Upload Mac installer
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: ${{ env.PLUGIN }}-Installer-Mac
           path: plugins/${{ env.PLUGIN }}/installer/${{ env.PLUGIN }}-Installer-Mac.pkg
@@ -168,7 +171,7 @@ jobs:
       COMPANY_NAME: ${{ needs.resolve.outputs.company_name }}
       BUNDLE_ID: ${{ needs.resolve.outputs.bundle_id }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
         with:
           submodules: recursive
 
@@ -239,7 +242,7 @@ jobs:
           Get-ChildItem "$installerDir/${env:PLUGIN}-Installer-Windows.exe"
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: ${{ env.PLUGIN }}-Installer-Windows
           path: plugins/${{ env.PLUGIN }}/installer/${{ env.PLUGIN }}-Installer-Windows.exe
@@ -253,17 +256,17 @@ jobs:
       contents: write
     steps:
       - name: Download Mac installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: ${{ needs.resolve.outputs.plugin_name }}-Installer-Mac
 
       - name: Download Windows installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: ${{ needs.resolve.outputs.plugin_name }}-Installer-Windows
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2.6.2
         with:
           name: ${{ needs.resolve.outputs.display_name }} ${{ needs.resolve.outputs.version }}
           body: |

@@ -6,12 +6,12 @@ add_subdirectory(../../JUCE JUCE)
 
 # Define the plugin target
 juce_add_plugin(ReverbATron
-    COMPANY_NAME             "Futureproof"
-    PLUGIN_MANUFACTURER_CODE Fpaf
+    COMPANY_NAME             "ExampleCo"
+    PLUGIN_MANUFACTURER_CODE Excm
     PLUGIN_CODE              Rvbt
     FORMATS                  AU VST3 Standalone
     PRODUCT_NAME             "Reverb-a-tron"
-    BUNDLE_ID                "com.futureproof.reverbatron"
+    BUNDLE_ID                "com.example.reverbatron"
     IS_SYNTH                 FALSE
     NEEDS_MIDI_INPUT         FALSE
     NEEDS_MIDI_OUTPUT        FALSE

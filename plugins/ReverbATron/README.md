@@ -1,6 +1,6 @@
 # Reverb-a-tron
 
-A harmonically intelligent reverb plugin by Futureproof. It listens to what you play and tunes its resonances to match, turning the reverb space into a musical instrument rather than a passive room simulation.
+A harmonically intelligent reverb plugin built as an example for [vst-plugin-builder](../../README.md). It listens to what you play and tunes its resonances to match, turning the reverb space into a musical instrument rather than a passive room simulation.
 
 Built with the JUCE framework. Available as VST3, AU, and Standalone.
 

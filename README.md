@@ -1,5 +1,10 @@
 # VST Plugin Builder
 
+[![Build Plugin Installers](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/build-installer.yml/badge.svg)](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/build-installer.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![JUCE](https://img.shields.io/badge/JUCE-8-blue.svg)](https://juce.com)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 Design and build professional audio plugins by talking to an AI. This repo is a conversational workshop for creating VST3, AU, and standalone plugins on top of the [JUCE](https://juce.com) framework, no C++ wizardry required to get started.
 
 You describe what you want the plugin to sound like and how the UI should feel. Your AI agent handles the architecture, DSP scaffolding, JUCE plumbing, and build pipeline. You stay in the creative seat.
@@ -12,7 +17,7 @@ You describe what you want the plugin to sound like and how the UI should feel. 
 
 **Stage-gated verification.** The implementation phase runs in three verified stages (foundation → DSP → UI). The build is checked after each stage; if three fix attempts on the same error fail, the workflow stops and asks you rather than patching forever.
 
-**Working examples, not just templates.** Three real plugins ship in the repo and build out of the box: **underwater** (modulation effect), **ReverbATron** (reverb with character), **RoomCorrection** (room-resonance taming).
+**Working examples, not just templates.** Two example plugins ship in the repo and build out of the box: **underwater** (modulation effect) and **ReverbATron** (a harmonically-tracking reverb).
 
 ## Who this is for
 
@@ -87,6 +92,6 @@ This repo is released under the [MIT License](LICENSE).
 
 JUCE is included as a submodule and is licensed separately under GPLv3 / commercial dual-license. Review [JUCE's licensing](https://juce.com/legal/juce-8-licence/) before distributing any plugin built with this repo, especially commercially. The bundled fonts in `resources/fonts/` are distributed by Indian Type Foundry under their own terms — verify before redistributing.
 
-Pull requests, bug reports, and showcases welcome. For security issues, see [SECURITY.md](SECURITY.md).
+Pull requests, bug reports, and showcases welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, conventions, and the release flow, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations. A full list of bundled third-party components is in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). For security issues, see [SECURITY.md](SECURITY.md).
 
 Happy plugin building.

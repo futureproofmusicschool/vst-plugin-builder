@@ -4,8 +4,20 @@ plugins/*/installer/
 *.o
 *.a
 .DS_Store
+**/.DS_Store
 node_modules/
 .mcp-servers/*/node_modules/
+
+# Build artifacts / installers
+*.pkg
+*.dmg
+*.exe
+*.zip
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
 
 # Claude Code local state
 .claude/projects/

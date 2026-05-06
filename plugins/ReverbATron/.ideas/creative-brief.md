@@ -13,8 +13,8 @@ No other reverb combines pitch-tracking resonance with beat-synced decay, spectr
 Reverb tails that harmonize with the input using FFT-based dominant-pitch detection, rhythmically pulse with the beat, shimmer with organic flutter modulation, and can be spectrally sculpted to sit perfectly in a mix. Works best on tonal material with a clear fundamental.
 
 ## Company Info
-- **Company:** Futureproof
-- **Manufacturer Code:** Fpaf
+- **Company:** ExampleCo
+- **Manufacturer Code:** Excm
 - **Plugin Code:** Rvbt
-- **Bundle ID:** com.futureproof.reverbatron
+- **Bundle ID:** com.example.reverbatron
 - **Formats:** AU, VST3, Standalone

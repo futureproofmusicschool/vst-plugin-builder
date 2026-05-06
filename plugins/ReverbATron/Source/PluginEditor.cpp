@@ -1,9 +1,9 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
 
-// ─── Futureproof Brand Fonts ────────────────────────────────────────────────
+// ─── Bundled Brand Fonts ────────────────────────────────────────────────────
 
-namespace FutureproofFonts
+namespace BrandFonts
 {
     juce::Typeface::Ptr getPanchang()
     {
@@ -32,9 +32,9 @@ namespace FutureproofFonts
     juce::Font mono(float height)    { return juce::Font(juce::Font::getDefaultMonospacedFontName(), height, juce::Font::plain); }
 }
 
-// ─── Futureproof Brand Colours ──────────────────────────────────────────────
+// ─── Brand Colours ──────────────────────────────────────────────────────────
 
-namespace FutureproofBrand
+namespace BrandColours
 {
     const juce::Colour purple       { 0xa3, 0x73, 0xf8 };
     const juce::Colour deepPurple   { 0x5d, 0x2d, 0xa8 };
@@ -47,36 +47,36 @@ namespace FutureproofBrand
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FutureproofLookAndFeel
+// BrandLookAndFeel
 // ═══════════════════════════════════════════════════════════════════════════════
 
-FutureproofLookAndFeel::FutureproofLookAndFeel()
+BrandLookAndFeel::BrandLookAndFeel()
 {
-    setColour(juce::Slider::rotarySliderFillColourId,    FutureproofBrand::purple);
-    setColour(juce::Slider::rotarySliderOutlineColourId, FutureproofBrand::panel);
-    setColour(juce::Slider::thumbColourId,               FutureproofBrand::textPrimary);
-    setColour(juce::Slider::textBoxTextColourId,         FutureproofBrand::textPrimary);
+    setColour(juce::Slider::rotarySliderFillColourId,    BrandColours::purple);
+    setColour(juce::Slider::rotarySliderOutlineColourId, BrandColours::panel);
+    setColour(juce::Slider::thumbColourId,               BrandColours::textPrimary);
+    setColour(juce::Slider::textBoxTextColourId,         BrandColours::textPrimary);
     setColour(juce::Slider::textBoxOutlineColourId,      juce::Colours::transparentBlack);
-    setColour(juce::Slider::textBoxBackgroundColourId,   FutureproofBrand::glassFill);
+    setColour(juce::Slider::textBoxBackgroundColourId,   BrandColours::glassFill);
 
-    setColour(juce::Label::textColourId,                 FutureproofBrand::textPrimary);
+    setColour(juce::Label::textColourId,                 BrandColours::textPrimary);
 
-    setColour(juce::ComboBox::backgroundColourId,        FutureproofBrand::panel);
-    setColour(juce::ComboBox::outlineColourId,           FutureproofBrand::border);
-    setColour(juce::ComboBox::textColourId,              FutureproofBrand::textPrimary);
-    setColour(juce::ComboBox::arrowColourId,             FutureproofBrand::purple);
+    setColour(juce::ComboBox::backgroundColourId,        BrandColours::panel);
+    setColour(juce::ComboBox::outlineColourId,           BrandColours::border);
+    setColour(juce::ComboBox::textColourId,              BrandColours::textPrimary);
+    setColour(juce::ComboBox::arrowColourId,             BrandColours::purple);
 
-    setColour(juce::TextButton::buttonColourId,          FutureproofBrand::panel);
-    setColour(juce::TextButton::buttonOnColourId,        FutureproofBrand::purple);
-    setColour(juce::TextButton::textColourOnId,          FutureproofBrand::textPrimary);
-    setColour(juce::TextButton::textColourOffId,         FutureproofBrand::textPrimary);
+    setColour(juce::TextButton::buttonColourId,          BrandColours::panel);
+    setColour(juce::TextButton::buttonOnColourId,        BrandColours::purple);
+    setColour(juce::TextButton::textColourOnId,          BrandColours::textPrimary);
+    setColour(juce::TextButton::textColourOffId,         BrandColours::textPrimary);
 
-    setColour(juce::PopupMenu::backgroundColourId,       FutureproofBrand::panel);
-    setColour(juce::PopupMenu::highlightedBackgroundColourId, FutureproofBrand::purple);
-    setColour(juce::PopupMenu::textColourId,             FutureproofBrand::textPrimary);
+    setColour(juce::PopupMenu::backgroundColourId,       BrandColours::panel);
+    setColour(juce::PopupMenu::highlightedBackgroundColourId, BrandColours::purple);
+    setColour(juce::PopupMenu::textColourId,             BrandColours::textPrimary);
 }
 
-void FutureproofLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
+void BrandLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
                                                float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
                                                juce::Slider& slider)
 {
@@ -92,7 +92,7 @@ void FutureproofLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, i
     juce::Path trackBg;
     trackBg.addCentredArc(centreX, centreY, radius * 0.88f, radius * 0.88f,
                           0.0f, rotaryStartAngle, rotaryEndAngle, true);
-    g.setColour(FutureproofBrand::panel);
+    g.setColour(BrandColours::panel);
     g.strokePath(trackBg, juce::PathStrokeType(3.0f, juce::PathStrokeType::curved,
                                                 juce::PathStrokeType::rounded));
 
@@ -100,18 +100,18 @@ void FutureproofLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, i
     juce::Path trackFill;
     trackFill.addCentredArc(centreX, centreY, radius * 0.88f, radius * 0.88f,
                             0.0f, rotaryStartAngle, angle, true);
-    g.setColour(FutureproofBrand::purple);
+    g.setColour(BrandColours::purple);
     g.strokePath(trackFill, juce::PathStrokeType(3.0f, juce::PathStrokeType::curved,
                                                   juce::PathStrokeType::rounded));
 
     // Knob face with gradient (dark purple tones)
-    juce::ColourGradient knobGrad(FutureproofBrand::panel.brighter(0.15f), centreX, centreY - knobRadius,
-                                  FutureproofBrand::panel.darker(0.3f), centreX, centreY + knobRadius, false);
+    juce::ColourGradient knobGrad(BrandColours::panel.brighter(0.15f), centreX, centreY - knobRadius,
+                                  BrandColours::panel.darker(0.3f), centreX, centreY + knobRadius, false);
     g.setGradientFill(knobGrad);
     g.fillEllipse(centreX - knobRadius, centreY - knobRadius, knobRadius * 2, knobRadius * 2);
 
     // Knob edge
-    g.setColour(FutureproofBrand::border);
+    g.setColour(BrandColours::border);
     g.drawEllipse(centreX - knobRadius, centreY - knobRadius, knobRadius * 2, knobRadius * 2, 1.0f);
 
     // Pointer line (white)
@@ -120,15 +120,15 @@ void FutureproofLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, i
     auto pointerThickness = 2.0f;
     pointer.addRectangle(-pointerThickness * 0.5f, -knobRadius + 4.0f, pointerThickness, pointerLength);
     pointer.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
-    g.setColour(FutureproofBrand::textPrimary);
+    g.setColour(BrandColours::textPrimary);
     g.fillPath(pointer);
 
     // Center dot (small white)
-    g.setColour(FutureproofBrand::textPrimary);
+    g.setColour(BrandColours::textPrimary);
     g.fillEllipse(centreX - 2.0f, centreY - 2.0f, 4.0f, 4.0f);
 }
 
-void FutureproofLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleButton& button,
+void BrandLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleButton& button,
                                                bool shouldDrawButtonAsHighlighted,
                                                bool /*shouldDrawButtonAsDown*/)
 {
@@ -137,31 +137,31 @@ void FutureproofLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleBut
 
     // Toggle track
     auto toggleBounds = bounds.withSizeKeepingCentre(40.0f, 20.0f);
-    g.setColour(isOn ? FutureproofBrand::purple : FutureproofBrand::panel);
+    g.setColour(isOn ? BrandColours::purple : BrandColours::panel);
     g.fillRoundedRectangle(toggleBounds, 10.0f);
 
     // Toggle border
-    g.setColour(FutureproofBrand::border);
+    g.setColour(BrandColours::border);
     g.drawRoundedRectangle(toggleBounds, 10.0f, 1.0f);
 
     // Toggle knob
     float knobX = isOn ? toggleBounds.getRight() - 18.0f : toggleBounds.getX() + 2.0f;
-    g.setColour(shouldDrawButtonAsHighlighted ? FutureproofBrand::textPrimary
-                                               : FutureproofBrand::textPrimary.darker(0.1f));
+    g.setColour(shouldDrawButtonAsHighlighted ? BrandColours::textPrimary
+                                               : BrandColours::textPrimary.darker(0.1f));
     g.fillEllipse(knobX, toggleBounds.getY() + 2.0f, 16.0f, 16.0f);
 
     // Label text
-    g.setColour(FutureproofBrand::textPrimary);
-    g.setFont(FutureproofFonts::body(11.0f));
+    g.setColour(BrandColours::textPrimary);
+    g.setFont(BrandFonts::body(11.0f));
     g.drawText(button.getButtonText(),
                button.getLocalBounds().removeFromBottom(14),
                juce::Justification::centred);
 }
 
-void FutureproofLookAndFeel::drawLabel(juce::Graphics& g, juce::Label& label)
+void BrandLookAndFeel::drawLabel(juce::Graphics& g, juce::Label& label)
 {
-    g.setColour(FutureproofBrand::textPrimary.withAlpha(0.85f));
-    g.setFont(FutureproofFonts::body(11.0f));
+    g.setColour(BrandColours::textPrimary.withAlpha(0.85f));
+    g.setFont(BrandFonts::body(11.0f));
     g.drawFittedText(label.getText(), label.getLocalBounds(),
                      juce::Justification::centred, 1);
 }
@@ -204,25 +204,25 @@ void PitchDisplay::paint(juce::Graphics& g)
     auto bounds = getLocalBounds().toFloat().reduced(2.0f);
 
     // Panel background
-    g.setColour(FutureproofBrand::panel);
+    g.setColour(BrandColours::panel);
     g.fillRoundedRectangle(bounds, 8.0f);
-    g.setColour(FutureproofBrand::border);
+    g.setColour(BrandColours::border);
     g.drawRoundedRectangle(bounds, 8.0f, 1.0f);
 
     bool active = displayConfidence > 0.1f && displayMidiNote >= 0;
-    auto textColour = active ? FutureproofBrand::purple : FutureproofBrand::textMuted;
+    auto textColour = active ? BrandColours::purple : BrandColours::textMuted;
 
     // Note name (large)
     auto topArea = bounds.reduced(6.0f, 4.0f).removeFromTop(bounds.getHeight() * 0.45f);
-    g.setColour(active ? FutureproofBrand::textPrimary : FutureproofBrand::textMuted);
-    g.setFont(FutureproofFonts::mono(20.0f));
+    g.setColour(active ? BrandColours::textPrimary : BrandColours::textMuted);
+    g.setFont(BrandFonts::mono(20.0f));
     juce::String noteName = active ? midiNoteToName(displayMidiNote) : "---";
     g.drawText(noteName, topArea.removeFromLeft(topArea.getWidth() * 0.5f),
                juce::Justification::centredLeft);
 
     // Frequency (Hz)
-    g.setFont(FutureproofFonts::mono(12.0f));
-    g.setColour(active ? FutureproofBrand::textMuted : FutureproofBrand::textMuted.withAlpha(0.4f));
+    g.setFont(BrandFonts::mono(12.0f));
+    g.setColour(active ? BrandColours::textMuted : BrandColours::textMuted.withAlpha(0.4f));
     juce::String freqText = active ?
         juce::String(static_cast<int>(displayFreq)) + " Hz" : "--- Hz";
     g.drawText(freqText, topArea, juce::Justification::centredRight);
@@ -231,12 +231,12 @@ void PitchDisplay::paint(juce::Graphics& g)
     auto meterArea = bounds.reduced(8.0f, 2.0f).removeFromBottom(bounds.getHeight() * 0.35f);
 
     // Meter background
-    g.setColour(FutureproofBrand::background);
+    g.setColour(BrandColours::background);
     g.fillRoundedRectangle(meterArea, 2.0f);
 
     // Center line
     float centerX = meterArea.getCentreX();
-    g.setColour(FutureproofBrand::border);
+    g.setColour(BrandColours::border);
     g.drawVerticalLine(static_cast<int>(centerX), meterArea.getY(), meterArea.getBottom());
 
     // Tick marks
@@ -254,7 +254,7 @@ void PitchDisplay::paint(juce::Graphics& g)
         float normalizedCents = juce::jlimit(-50.0f, 50.0f, cents) / 50.0f;
         float needleX = centerX + normalizedCents * (meterArea.getWidth() * 0.4f);
 
-        g.setColour(FutureproofBrand::purple);
+        g.setColour(BrandColours::purple);
         g.fillRect(needleX - 1.5f, meterArea.getY() + 1.0f, 3.0f, meterArea.getHeight() - 2.0f);
     }
 }
@@ -269,7 +269,7 @@ void ReverbATronEditor::setupKnob(KnobWithLabel& knob, const juce::String& param
     knob.slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     knob.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 14);
     knob.slider.setLookAndFeel(&lookAndFeel);
-    knob.slider.setColour(juce::Slider::textBoxTextColourId, FutureproofBrand::textPrimary);
+    knob.slider.setColour(juce::Slider::textBoxTextColourId, BrandColours::textPrimary);
     knob.slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
     knob.slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::transparentBlack);
     addAndMakeVisible(knob.slider);
@@ -289,16 +289,16 @@ void ReverbATronEditor::drawSectionPanel(juce::Graphics& g, juce::Rectangle<int>
     auto boundsF = bounds.toFloat();
 
     // Panel background with glassmorphism fill
-    g.setColour(FutureproofBrand::glassFill);
+    g.setColour(BrandColours::glassFill);
     g.fillRoundedRectangle(boundsF, 10.0f);
 
     // Subtle border
-    g.setColour(FutureproofBrand::border);
+    g.setColour(BrandColours::border);
     g.drawRoundedRectangle(boundsF, 10.0f, 1.0f);
 
     // Section title
-    g.setColour(FutureproofBrand::textMuted);
-    g.setFont(FutureproofFonts::heading(12.0f));
+    g.setColour(BrandColours::textMuted);
+    g.setFont(BrandFonts::heading(12.0f));
     g.drawText(title, bounds.removeFromTop(18).reduced(10, 0), juce::Justification::centredLeft);
 }
 
@@ -381,35 +381,35 @@ ReverbATronEditor::~ReverbATronEditor()
 void ReverbATronEditor::paint(juce::Graphics& g)
 {
     // Main background with subtle radial gradient
-    juce::ColourGradient bgGrad(FutureproofBrand::deepPurple.withAlpha(0.15f),
+    juce::ColourGradient bgGrad(BrandColours::deepPurple.withAlpha(0.15f),
                                  static_cast<float>(getWidth()) * 0.5f,
                                  static_cast<float>(getHeight()) * 0.3f,
-                                 FutureproofBrand::background, 0.0f, static_cast<float>(getHeight()), true);
+                                 BrandColours::background, 0.0f, static_cast<float>(getHeight()), true);
     g.setGradientFill(bgGrad);
     g.fillRect(getLocalBounds());
 
     // Header bar (36px tall, glassmorphism)
     auto headerArea = getLocalBounds().removeFromTop(36);
-    g.setColour(FutureproofBrand::glassFill);
+    g.setColour(BrandColours::glassFill);
     g.fillRect(headerArea);
 
-    // "FUTUREPROOF" - left, muted, Panchang
-    g.setColour(FutureproofBrand::textMuted);
-    g.setFont(FutureproofFonts::title(13.0f));
-    g.drawText("FUTUREPROOF", headerArea.reduced(16, 0), juce::Justification::centredLeft);
+    // Publisher name - left, muted, Panchang
+    g.setColour(BrandColours::textMuted);
+    g.setFont(BrandFonts::title(13.0f));
+    g.drawText("EXAMPLE CO", headerArea.reduced(16, 0), juce::Justification::centredLeft);
 
     // Plugin name - centre, white, Panchang
-    g.setColour(FutureproofBrand::textPrimary);
-    g.setFont(FutureproofFonts::title(15.0f));
+    g.setColour(BrandColours::textPrimary);
+    g.setFont(BrandFonts::title(15.0f));
     g.drawText("REVERB-A-TRON", headerArea, juce::Justification::centred);
 
     // Version - right, muted, Satoshi
-    g.setColour(FutureproofBrand::textMuted);
-    g.setFont(FutureproofFonts::body(11.0f));
+    g.setColour(BrandColours::textMuted);
+    g.setFont(BrandFonts::body(11.0f));
     g.drawText("v1.0.0", headerArea.reduced(16, 0), juce::Justification::centredRight);
 
     // Separator line
-    g.setColour(FutureproofBrand::border);
+    g.setColour(BrandColours::border);
     g.drawHorizontalLine(36, 0.0f, static_cast<float>(getWidth()));
 
     // Section panels

@@ -2,12 +2,12 @@
 
 #include "PluginProcessor.h"
 
-// ─── Futureproof LookAndFeel ─────────────────────────────────────────────────
+// ─── Custom LookAndFeel ──────────────────────────────────────────────────────
 
-class FutureproofLookAndFeel : public juce::LookAndFeel_V4
+class BrandLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    FutureproofLookAndFeel();
+    BrandLookAndFeel();
 
     void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
                           float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
@@ -52,7 +52,7 @@ public:
 
 private:
     ReverbATronProcessor& processorRef;
-    FutureproofLookAndFeel lookAndFeel;
+    BrandLookAndFeel lookAndFeel;
 
     // Helper to create and configure a rotary knob
     struct KnobWithLabel

@@ -11,7 +11,7 @@ Retro / analog — warm tones, skeuomorphic knobs, vintage hardware panel feel. 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                          R E V E R B - A - T R O N                          │
-│                              Futureproof                                    │
+│                              Example Co                                     │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌─── MAIN ──────────┐  ┌─── HARMONIC RESONANCE ────────────────────────┐  │
