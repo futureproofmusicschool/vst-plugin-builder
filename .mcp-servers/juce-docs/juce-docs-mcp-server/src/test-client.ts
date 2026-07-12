@@ -1,15 +1,9 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { spawn } from "child_process";
 
 async function main() {
   try {
     console.log("Starting test client for JUCE Documentation MCP Server...");
-    
-    // Start the server process
-    const serverProcess = spawn("node", ["dist/index.js"], {
-      stdio: ["pipe", "pipe", process.stderr]
-    });
     
     // Create a transport that communicates with the server process
     const transport = new StdioClientTransport({
@@ -18,18 +12,10 @@ async function main() {
     });
     
     // Create an MCP client
-    const client = new Client(
-      {
-        name: "JUCE Docs Test Client",
-        version: "1.0.0"
-      },
-      {
-        capabilities: {
-          resources: {},
-          tools: {}
-        }
-      }
-    );
+    const client = new Client({
+      name: "JUCE Docs Test Client",
+      version: "1.0.0"
+    });
     
     // Connect to the server
     await client.connect(transport);
@@ -48,23 +34,25 @@ async function main() {
     // Test reading the class list resource
     console.log("\nReading class list...");
     const classList = await client.readResource({ uri: "juce://classes" });
-    if (classList.contents && classList.contents[0] && classList.contents[0].text) {
-      const text = classList.contents[0].text as string;
+    const classListContent = classList.contents[0];
+    if (classListContent && "text" in classListContent) {
+      const text = classListContent.text;
       console.log("Class list:", text.substring(0, 200) + "...");
     }
     
     // Test reading a specific class resource
     console.log("\nReading ValueTree class documentation...");
     const valueTreeDocs = await client.readResource({ uri: "juce://class/ValueTree" });
-    if (valueTreeDocs.contents && valueTreeDocs.contents[0] && valueTreeDocs.contents[0].text) {
-      const text = valueTreeDocs.contents[0].text as string;
+    const valueTreeContent = valueTreeDocs.contents[0];
+    if (valueTreeContent && "text" in valueTreeContent) {
+      const text = valueTreeContent.text;
       console.log("ValueTree docs:", text.substring(0, 200) + "...");
     }
     
     // Test searching for classes
     console.log("\nSearching for 'Audio' classes...");
     const searchResult = await client.callTool({
-      name: "search-classes",
+      name: "search-juce-classes",
       arguments: {
         query: "Audio"
       }
@@ -79,7 +67,7 @@ async function main() {
     // Test getting class documentation
     console.log("\nGetting AudioBuffer class documentation...");
     const audioDocs = await client.callTool({
-      name: "get-class-docs",
+      name: "get-juce-class-docs",
       arguments: {
         className: "AudioBuffer"
       }
@@ -94,7 +82,7 @@ async function main() {
     console.log("\nAll tests completed successfully!");
     
     // Clean up
-    serverProcess.kill();
+    await client.close();
     process.exit(0);
   } catch (error) {
     console.error("Error in test client:", error);
@@ -102,4 +90,4 @@ async function main() {
   }
 }
 
-main(); 
+main();

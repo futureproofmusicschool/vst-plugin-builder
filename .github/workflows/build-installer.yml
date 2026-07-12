@@ -29,7 +29,7 @@ jobs:
       company_name: ${{ steps.resolve.outputs.company_name }}
       bundle_id: ${{ steps.resolve.outputs.bundle_id }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Resolve plugin name and metadata
         id: resolve
@@ -79,7 +79,7 @@ jobs:
       COMPANY_NAME: ${{ needs.resolve.outputs.company_name }}
       BUNDLE_ID: ${{ needs.resolve.outputs.bundle_id }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: recursive
 
@@ -156,7 +156,7 @@ jobs:
           ls -lh "$INSTALLER_DIR/${PLUGIN}-Installer-Mac.pkg"
 
       - name: Upload Mac installer
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.PLUGIN }}-Installer-Mac
           path: plugins/${{ env.PLUGIN }}/installer/${{ env.PLUGIN }}-Installer-Mac.pkg
@@ -171,7 +171,7 @@ jobs:
       COMPANY_NAME: ${{ needs.resolve.outputs.company_name }}
       BUNDLE_ID: ${{ needs.resolve.outputs.bundle_id }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: recursive
 
@@ -242,7 +242,7 @@ jobs:
           Get-ChildItem "$installerDir/${env:PLUGIN}-Installer-Windows.exe"
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.PLUGIN }}-Installer-Windows
           path: plugins/${{ env.PLUGIN }}/installer/${{ env.PLUGIN }}-Installer-Windows.exe
@@ -256,17 +256,17 @@ jobs:
       contents: write
     steps:
       - name: Download Mac installer
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ needs.resolve.outputs.plugin_name }}-Installer-Mac
 
       - name: Download Windows installer
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ needs.resolve.outputs.plugin_name }}-Installer-Windows
 
       - name: Create Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2.6.2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
         with:
           name: ${{ needs.resolve.outputs.display_name }} ${{ needs.resolve.outputs.version }}
           body: |
