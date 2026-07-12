@@ -1,0 +1,59 @@
+name: Plugin CI
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'JUCE/**'
+      - 'templates/**'
+      - 'rules/juce-patterns.md'
+      - '.github/workflows/plugin-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/**'
+      - 'JUCE/**'
+      - 'templates/**'
+      - 'rules/juce-patterns.md'
+      - '.github/workflows/plugin-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plugin-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build bundled plugins (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          submodules: recursive
+
+      - name: Configure, build, and test every plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=0
+
+          while IFS= read -r cmake_file; do
+            plugin_dir=$(dirname "$cmake_file")
+            plugin_name=$(basename "$plugin_dir")
+            build_dir="$RUNNER_TEMP/${plugin_name}-build"
+            count=$((count + 1))
+
+            echo "::group::Build ${plugin_name}"
+            cmake -S "$plugin_dir" -B "$build_dir" -DCMAKE_BUILD_TYPE=Release
+            cmake --build "$build_dir" --config Release --parallel 2
+
+            if test -f "$plugin_dir/tests/CMakeLists.txt"; then
+              ctest --test-dir "$build_dir" --build-config Release --output-on-failure
+            fi
+            echo "::endgroup::"
+          done < <(find plugins -mindepth 2 -maxdepth 2 -name CMakeLists.txt -print | sort)
+
+          test "$count" -gt 0 || { echo "::error::No plugin projects found"; exit 1; }

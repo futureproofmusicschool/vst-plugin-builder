@@ -4,7 +4,23 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+      day: monday
+      time: "09:00"
+      timezone: America/Los_Angeles
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 3
+    groups:
+      routine-actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      security-actions:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    commit-message:
+      prefix: deps
     labels:
       - dependencies
       - ci
@@ -13,7 +29,31 @@ updates:
     directory: "/.mcp-servers/juce-docs/juce-docs-mcp-server"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+      day: monday
+      time: "09:15"
+      timezone: America/Los_Angeles
+    cooldown:
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
+    open-pull-requests-limit: 3
+    groups:
+      mcp-runtime:
+        applies-to: version-updates
+        dependency-type: production
+        patterns:
+          - "*"
+      mcp-development:
+        applies-to: version-updates
+        dependency-type: development
+        patterns:
+          - "*"
+      mcp-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    commit-message:
+      prefix: deps
     labels:
       - dependencies
       - mcp-server
