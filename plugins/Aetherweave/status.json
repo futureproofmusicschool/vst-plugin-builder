@@ -1,0 +1,12 @@
+{
+  "plugin_name": "Aetherweave",
+  "phase": "plan_complete",
+  "ui_framework": "native",
+  "formats": ["AU", "VST3", "Standalone"],
+  "design_iterations": ["v1"],
+  "last_build": {
+    "result": "ok",
+    "timestamp": "2026-05-20T01:13:11Z",
+    "config": "Debug"
+  }
+}
