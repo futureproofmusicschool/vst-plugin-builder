@@ -95,6 +95,7 @@ This public repository is maintained with GitHub-native automation:
 - Every pull request runs repository checks, builds and tests the JUCE Docs MCP server, audits production npm dependencies, and reviews dependency changes for known high-severity vulnerabilities.
 - Pull requests that touch plugin, JUCE, template, or plugin-convention files compile every bundled plugin on macOS.
 - Dependabot checks weekly, groups compatible updates into a small number of pull requests, and applies short cooldowns to routine releases. Security updates are grouped separately and are not delayed by cooldowns.
+- Dependabot patch updates enable squash auto-merge after all required checks pass; minor and major updates remain open for human review.
 - CodeQL scans the JavaScript and TypeScript MCP surface on relevant changes and on a weekly schedule.
 
 Release installers remain a deliberate operation: use the manual workflow or push a versioned plugin tag as described above.
