@@ -1,6 +1,8 @@
 # VST Plugin Builder
 
 [![Build Plugin Installers](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/build-installer.yml/badge.svg)](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/build-installer.yml)
+[![Repository maintenance](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/maintenance.yml/badge.svg)](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/maintenance.yml)
+[![Plugin CI](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/plugin-ci.yml/badge.svg)](https://github.com/futureproofmusicschool/vst-plugin-builder/actions/workflows/plugin-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![JUCE](https://img.shields.io/badge/JUCE-8-blue.svg)](https://juce.com)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -85,6 +87,17 @@ cmake --build build --config Release
 A GitHub Actions workflow (`.github/workflows/build-installer.yml`) builds Mac `.pkg` and Windows `.exe` installers. Trigger it manually from the Actions tab, or push a tag like `v1.0.0-YourPlugin` to auto-build and attach installers to a GitHub Release.
 
 > **Heads up — local code execution:** opening this repo in an MCP-aware agent starts a local Node.js subprocess (the MCP server defined in `.mcp.json`). The server fetches HTML from `docs.juce.com` and parses it with `cheerio`. If you cloned this repo from a fork or untrusted source, review `.mcp-servers/juce-docs/juce-docs-mcp-server/src/` before opening it. See [SECURITY.md](SECURITY.md).
+
+## Project maintenance
+
+This public repository is maintained with GitHub-native automation:
+
+- Every pull request runs repository checks, builds and tests the JUCE Docs MCP server, audits production npm dependencies, and reviews dependency changes for known high-severity vulnerabilities.
+- Pull requests that touch plugin, JUCE, template, or plugin-convention files compile every bundled plugin on macOS.
+- Dependabot checks weekly, groups compatible updates into a small number of pull requests, and applies short cooldowns to routine releases. Security updates are grouped separately and are not delayed by cooldowns.
+- CodeQL scans the JavaScript and TypeScript MCP surface on relevant changes and on a weekly schedule.
+
+Release installers remain a deliberate operation: use the manual workflow or push a versioned plugin tag as described above.
 
 ## License and contributions
 

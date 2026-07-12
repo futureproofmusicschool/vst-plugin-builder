@@ -55,7 +55,9 @@ cmake --build build --config Release
 - Confirm the build passes locally for any plugin you touched.
 - For DSP changes, run `ctest` in the plugin's build directory if it has a `tests/` folder.
 - Don't commit `build/`, `installer/`, signing identities, Apple Team IDs, or `.env` files (the `.gitignore` covers most of this — double-check).
-- The `build-installer.yml` CI workflow runs on tagged releases and manual dispatch; PRs should at minimum compile cleanly.
+- Every PR runs repository checks, the JUCE Docs MCP build/test/audit, and dependency review.
+- PRs that touch plugin, JUCE, template, or plugin-convention files compile every bundled plugin on macOS.
+- The `build-installer.yml` workflow remains reserved for tagged releases and manual dispatch.
 
 ## Releasing
 
